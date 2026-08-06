@@ -1,0 +1,786 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>EasyPlayer 案例演示</title>
+    <script src="../js/EasyPlayer-pro.js"></script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #f0f8ff;
+            --surface: #ffffff;
+            --surface2: #e8f4fd;
+            --border: #c5dff0;
+            --text: #2c3e50;
+            --text-dim: #7f8c9b;
+            --accent: #4da8da;
+            --accent2: #2e86c1;
+            --green: #48c9b0;
+            --orange: #e67e22;
+            --red: #e74c3c;
+            --radius: 12px;
+            --shadow: 0 4px 24px rgba(0,0,0,.08);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .page-wrapper {
+            max-width: 1480px;
+            margin: 0 auto;
+            padding: 24px 20px 60px;
+        }
+
+        /* Header */
+        .page-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 28px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        .page-header .logo {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 18px; color: #fff;
+        }
+        .page-header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Main layout */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 24px;
+            margin-bottom: 36px;
+        }
+
+        /* Video area */
+        .video-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+        #video {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #000;
+        }
+
+        /* Config panel */
+        .config-panel {
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-height: calc(9 / 16 * (100vw - 380px - 24px - 20px * 2) );
+            overflow-y: auto;
+        }
+        .config-panel::-webkit-scrollbar { width: 4px; }
+        .config-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--accent2);
+            margin-bottom: 4px;
+        }
+
+        /* Checkbox group */
+        .check-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            /* background: var(--surface2); */
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background .2s;
+            flex: 1;
+            min-width: 100px;
+        }
+        /* .check-item:hover { background: #d6ebf7; } */
+        .check-item input[type="checkbox"] {
+            appearance: none;
+            width: 18px; height: 18px;
+            border: 2px solid var(--border);
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+            transition: all .2s;
+            flex-shrink: 0;
+        }
+        .check-item input[type="checkbox"]:checked {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+        .check-item input[type="checkbox"]:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .check-item label {
+            font-size: 13px;
+            color: var(--text);
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* Form inputs */
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .form-field label {
+            font-size: 12px;
+            color: var(--text-dim);
+            margin-bottom: 4px;
+            display: block;
+        }
+        .form-field input[type="text"] {
+            width: 100%;
+            padding: 10px 14px;
+            /* background: var(--surface2); */
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 13px;
+            outline: none;
+            transition: border-color .2s;
+        }
+        .form-field input[type="text"]:focus {
+            border-color: var(--accent);
+        }
+        .form-field input[type="text"]::placeholder {
+            color: var(--text-dim);
+            opacity: .6;
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s;
+            flex: 1;
+            min-width: 70px;
+            text-align: center;
+        }
+        .btn:active { transform: scale(.96); }
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+        .btn-primary:hover { background: #3a93c4; }
+        .btn-vod {
+            background: var(--green);
+            color: #fff;
+        }
+        .btn-vod:hover { background: #3ab59e; }
+        .btn-warn {
+            background: var(--orange);
+            color: #fff;
+        }
+        .btn-warn:hover { background: #cf6d17; }
+        .btn-danger {
+            background: var(--red);
+            color: #fff;
+        }
+        .btn-danger:hover { background: #c0392b; }
+
+        /* Info section */
+        .info-section {
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 28px;
+            margin-bottom: 28px;
+        }
+        .info-section h2 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--accent2);
+        }
+        .info-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .info-list li {
+            padding: 10px 16px;
+            background: var(--surface2);
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.7;
+            border-left: 3px solid var(--accent);
+        }
+        .info-list li.highlight {
+            border-left-color: var(--orange);
+            color: var(--orange);
+        }
+        .info-list li .sub-list {
+            margin-top: 6px;
+            padding-left: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .info-list li .sub-list span {
+            color: var(--text-dim);
+            font-size: 13px;
+        }
+
+        /* Tables */
+        .tables-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        .table-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+        .table-card h2 {
+            font-size: 16px;
+            font-weight: 700;
+            padding: 20px 24px 0;
+            color: var(--accent2);
+        }
+        .table-wrap {
+            padding: 16px 24px 24px;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        thead th {
+            text-align: left;
+            padding: 10px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+            color: var(--text-dim);
+            border-bottom: 2px solid var(--border);
+        }
+        tbody td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+        }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background: var(--surface2); }
+        td code {
+            background: var(--surface2);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: var(--green);
+            font-family: 'Cascadia Code', 'Fira Code', monospace;
+        }
+
+        /* EasyPlayer control visibility for light theme */
+        #video {
+            position: relative;
+        }
+        #video::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 56px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.65));
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            .config-panel {
+                max-height: none;
+            }
+            .tables-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-wrapper">
+        <!-- Header -->
+        <div class="page-header">
+            <!-- <div class="logo">EP</div> -->
+            <h1>EasyPlayer 案例演示</h1>
+        </div>
+
+        <!-- Main content -->
+        <div class="main-grid">
+            <!-- Video -->
+            <div class="video-card">
+                <div id="video"></div>
+            </div>
+
+            <!-- Config -->
+            <div class="config-panel">
+                <div>
+                    <div class="section-title">解码配置</div>
+                    <div class="check-group">
+                        <div class="check-item">
+                            <input type="checkbox" id="useMSE" checked>
+                            <label for="useMSE">MSE硬解码</label>
+                        </div>
+                        <div class="check-item">
+                            <input type="checkbox" id="useWCS">
+                            <label for="useWCS">WCS(硬解)</label>
+                        </div>
+                        <div class="check-item">
+                            <input type="checkbox" id="useSIMD">
+                            <label for="useSIMD">WASM(软解)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="section-title">渲染配置</div>
+                    <div class="check-group">
+                        <div class="check-item">
+                            <input type="checkbox" id="hasAudio" checked>
+                            <label for="hasAudio">渲染音频</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- <div class="divider"></div> -->
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label for="heartTimeout">超出时间无数据重连 (s)</label>
+                        <input type="text" id="heartTimeout" value="7" placeholder="如 3，5，7">
+                    </div>
+                    <div class="form-field">
+                        <label for="videoBufferDelay">达到延迟重播 (s)</label>
+                        <input type="text" id="videoBufferDelay" value="3" placeholder="如 3，5，7">
+                    </div>
+                    <div class="form-field">
+                        <label for="fullscreenWatermarkConfig">水印</label>
+                        <input type="text" id="fullscreenWatermarkConfig" value="EasyPlayer" placeholder="水印文字">
+                    </div>
+                    <div class="form-field">
+                        <label for="background">封面</label>
+                        <input type="text" id="background" value="" placeholder="如 https://xxx.png">
+                    </div>
+                    <div class="form-field">
+                        <label for="playHref">播放地址 URL</label>
+                        <input type="text" id="playHref"
+                            value="https://demo.easygbs.com:24433/live/34020000002000000001_34020000001310000001.flv?expired=20250418090813"
+                            placeholder="如 https,ws://,webrtc://">
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary" id="play">播放</button>
+                    <button type="button" class="btn btn-vod" id="playVod">点播</button>
+                    <button type="button" class="btn btn-warn" id="rePlay">重播</button>
+                    <button type="button" class="btn btn-danger" id="destroy">销毁</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Introduction -->
+        <div class="info-section">
+            <h2>功能介绍</h2>
+            <ul class="info-list">
+                <li>支持 ws-flv, http-flv, hls, webrtc</li>
+                <li class="highlight">webrtc 使用方式：webrtc://xxx</li>
+                <li>使用时出现跨域请下载文件到本地调试</li>
+                <li>当浏览器不支持 MSE硬解 时，会自动切换成 WASM软解</li>
+                <li>关闭音频渲染可以节省性能</li>
+                <li>
+                    支持电子放大
+                    <div class="sub-list">
+                        <span>支持 水印（动态水印、幽灵水印）</span>
+                        <span>支持 显示上一个视频最后一帧</span>
+                        <span>支持 播放器快照截图</span>
+                        <span>支持 视频录制（WebM格式(音频+视频)、Mp4格式(视频)、Flv格式(音频+视频)）</span>
+                        <span>支持 超时、断网重连、异常暂停播放等</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Tables -->
+        <div class="tables-grid">
+            <!-- Properties -->
+            <div class="table-card">
+                <h2>属性配置</h2>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>属性</th>
+                                <th>说明</th>
+                                <th>类型</th>
+                                <th>默认值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>container</code></td><td>播放器容器</td><td>-</td><td>-</td></tr>
+                            <tr><td><code>decoder</code></td><td>wasm解码地址</td><td>String</td><td>-</td></tr>
+                            <tr><td><code>isResize</code></td><td>是否拉伸</td><td>Boolean</td><td>true</td></tr>
+                            <tr><td><code>loadingText</code></td><td>加载显示的文字</td><td>String</td><td>加载中</td></tr>
+                            <tr><td><code>videoBuffer</code></td><td>设置最小缓冲时长，单位秒，播放器会自动消除延迟</td><td>Number</td><td>1</td></tr>
+                            <tr><td><code>hasAudio</code></td><td>是否解析音频</td><td>Boolean</td><td>true</td></tr>
+                            <tr><td><code>useMSE</code></td><td>MSE模式</td><td>Boolean</td><td>false</td></tr>
+                            <tr><td><code>useWCS</code></td><td>WCS模式</td><td>Boolean</td><td>false</td></tr>
+                            <tr><td><code>useSIMD</code></td><td>强制使用wasm模式</td><td>Boolean</td><td>false</td></tr>
+                            <tr><td><code>background</code></td><td>视频封面图片</td><td>String</td><td>-</td></tr>
+                            <tr><td><code>qualityConfig</code></td><td>配置清晰度</td><td>Array</td><td>['普清','高清','超清','4K','8K']</td></tr>
+                            <tr><td><code>defaultStreamQuality</code></td><td>默认显示的清晰度，如果不设置，会显示第一个清晰度</td><td>String</td><td>-</td></tr>
+                            <tr><td><code>isNotMute</code></td><td>是否渲染音频</td><td>Boolean</td><td>false</td></tr>
+                            <tr><td><code>recordType</code></td><td>视频录制默认mp4格式</td><td>String</td><td>mp4, flv</td></tr>
+                            <tr><td><code>playbackForwardMaxRateDecodeIFrame</code></td><td>录像倍数</td><td>Number</td><td>-</td></tr>
+                            <tr><td><code>debug</code></td><td>控制台日志打印</td><td>Boolean</td><td>false</td></tr>
+                            <tr><td><code>debugLevel</code></td><td>打印日志级别默认warn</td><td>String</td><td>debug, warn</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Methods & Events -->
+            <div class="table-card">
+                <h2>调用方法和事件回调</h2>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>方法/事件</th>
+                                <th>说明</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>play</code></td><td>播放</td></tr>
+                            <tr><td><code>playback</code></td><td>播放录像</td></tr>
+                            <tr><td><code>pause</code></td><td>暂停播放</td></tr>
+                            <tr><td><code>isPause</code></td><td>返回是否暂停中状态</td></tr>
+                            <tr><td><code>setBufferTime</code></td><td>设置最大缓冲时长</td></tr>
+                            <tr><td><code>setVolume</code></td><td>设置音量</td></tr>
+                            <tr><td><code>getVolume</code></td><td>获取音量</td></tr>
+                            <tr><td><code>exitFullscreen</code></td><td>退出全屏(取消全屏)播放视频</td></tr>
+                            <tr><td><code>mute</code></td><td>静音</td></tr>
+                            <tr><td><code>cancelMute</code></td><td>取消静音</td></tr>
+                            <tr><td><code>isMute</code></td><td>返回是否静音</td></tr>
+                            <tr><td><code>screenshot</code></td><td>获取快照</td></tr>
+                            <tr><td><code>setFullscreen</code></td><td>全屏</td></tr>
+                            <tr><td><code>setStreamQuality</code></td><td>设置分辨率，必须是qualityConfig里面的数据</td></tr>
+                            <tr><td><code>forward</code></td><td>设置录像倍数</td></tr>
+                            <tr><td><code>setPlaybackStartTime</code></td><td>设置录像跳转时间/s</td></tr>
+                            <tr><td><code>getVideoInfo</code></td><td>获取视频信息</td></tr>
+                            <tr><td><code>getAudioInfo</code></td><td>获取音频信息</td></tr>
+                            <tr><td><code>destroy</code></td><td>关闭视频，释放底层资源</td></tr>
+                            <tr><td><code>play</code></td><td>播放事件</td></tr>
+                            <tr><td><code>pause</code></td><td>暂停事件</td></tr>
+                            <tr><td><code>videoInfo</code></td><td>视频信息</td></tr>
+                            <tr><td><code>audioInfo</code></td><td>音频信息</td></tr>
+                            <tr><td><code>mute</code></td><td>音频事件</td></tr>
+                            <tr><td><code>error</code></td><td>播放异常</td></tr>
+                            <tr><td><code>kBps</code></td><td>当前网速，单位KB 每秒1次</td></tr>
+                            <tr><td><code>recordEnd</code></td><td>录制结束的事件</td></tr>
+                            <tr><td><code>recordStart</code></td><td>录制开始的事件</td></tr>
+                            <tr><td><code>fullscreen</code></td><td>当前是否全屏</td></tr>
+                            <tr><td><code>streamQualityChange</code></td><td>清晰度回调</td></tr>
+                            <tr><td><code>playbackSeek</code></td><td>录像时间轴跳转回调</td></tr>
+                            <tr><td><code>playbackPreRateChange</code></td><td>录像倍数的回调</td></tr>
+                            <tr><td><code>currentPts</code></td><td>监听当前渲染帧的时间戳（流里面的）</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var easypro;
+        var $player = document.getElementById('play');
+        var $playVod = document.getElementById('playVod');
+        var $destroy = document.getElementById('destroy');
+        var $rePlay = document.getElementById('rePlay');
+        var $playHref = document.getElementById('playHref');
+        var $container = document.querySelector('#video');
+        var $videoBufferDelay = document.querySelector('#videoBufferDelay');
+        var $useMSE = document.querySelector('#useMSE');
+        var $useWCS = document.querySelector('#useWCS');
+        var $useSIMD = document.querySelector('#useSIMD');
+        var $hasAudio = document.querySelector('#hasAudio');
+        var $isNakedFlow = document.querySelector('#isNakedFlow');
+        var $heartTimeout = document.querySelector('#heartTimeout');
+        var $fullscreenWatermarkConfig = document.querySelector('#fullscreenWatermarkConfig');
+        var $background = document.querySelector('#background');
+        function create(options) {
+            options = options || {}
+
+            easypro = new window.EasyPlayerPro($container, {
+                isResize: false,
+                loadingText: "加载中",
+                gpuDecoder: $useMSE.checked === true,
+                WASMSIMD: $useSIMD.checked === true,
+                WCS: $useWCS.checked === true,
+                hasAudio: $hasAudio.checked === true,
+                websocket1006ErrorReplay: true,
+                networkDelayTimeoutReplay: true,
+                useMThreading: true,
+                showBandwidth: true,
+                showPerformance: true,
+                operateBtns: {
+                    fullscreen: true,
+                    screenshot: true,
+                    play: true,
+                    audio: true,
+                    ptz: true,
+                    quality: true,
+                    performance: true,
+                    screenshotFn: screenshotFn,
+                },
+                background: $background.value,
+                timeout: 10,
+                forceNoOffscreen: true,
+                isNotMute: false,
+                heartTimeout: Number($heartTimeout.value),
+                ptzClickType: 'mouseDownAndUp',
+                ptzZoomShow: true,
+                ptzMoreArrowShow: true,
+                ptzApertureShow: true,
+                ptzFocusShow: true,
+                pauseAndNextPlayUseLastFrameShow: true,
+                heartTimeoutReplayUseLastFrameShow: true,
+                replayUseLastFrameShow: true,
+                fullscreenWatermarkConfig: {
+                    text: $fullscreenWatermarkConfig.value,
+                }
+            });
+            // Inject styles into Shadow DOM for control visibility on light theme
+            injectPlayerStyles();
+        }
+
+        function injectPlayerStyles() {
+            const style = document.createElement('style');
+            style.textContent = `
+                [class*="control"] , [class*="operate"], [class*="toolbar"] {
+                    color: #fff !important;
+                }
+                [class*="control"] svg, [class*="operate"] svg, [class*="btn"] svg {
+                    fill: #fff !important;
+                    color: #fff !important;
+                }
+                [class*="control"] img, [class*="operate"] img, [class*="btn"] img {
+                    filter: brightness(0) invert(1) !important;
+                }
+            `;
+            // Try to find shadow roots inside the player container
+            function walkShadowDoms(el) {
+                if (el.shadowRoot) {
+                    el.shadowRoot.appendChild(style.cloneNode(true));
+                }
+                for (const child of el.children) {
+                    walkShadowDoms(child);
+                }
+            }
+            // Also inject directly into the container
+            $container.appendChild(style.cloneNode(true));
+            // Delay to let the player finish rendering
+            setTimeout(() => walkShadowDoms($container), 500);
+            setTimeout(() => walkShadowDoms($container), 2000);
+        }
+
+        const screenshotFn = () => {
+            if (easypro) {
+                easypro.screenshotWatermark({
+                    text: {
+                        content: `${$fullscreenWatermarkConfig.value}`,
+                        fontSize: '46',
+                        color: 'rgba(100,100,100,.6)',
+                    },
+                    opacity: 0.8,
+                    right: 20,
+                    top: 50,
+                });
+            }
+        };
+
+        create();
+
+        easypro.on('streamQualityChange', (value) => {
+            console.log('streamQualityChange', value);
+        })
+
+        easypro.on('timeUpdate', (value) => {
+        })
+
+        easypro.on('stats', (stats) => {
+        })
+
+        easypro.on('error', (errorType, message) => {
+            console.error('error', errorType, message);
+        })
+
+        easypro.on('crashLog', (info) => {
+            console.error('crashLog', info);
+        })
+
+        easypro.on('playFailedAndPaused', (reason, lastFrameInfo, msg) => {
+            console.error('playFailedAndPaused', reason, lastFrameInfo, msg);
+        });
+
+        easypro.on('playbackRate', (rate) => {
+            console.log('playbackRate', rate);
+        })
+
+        function play() {
+            var href = $playHref.value;
+            if (href) {
+                easypro.play(href);
+            } else {
+                easypro.showErrorMessageTips('播放地址不能为空');
+            }
+        }
+
+        function playVod() {
+            var href = $playHref.value;
+            if (href) {
+                easypro.playback(href, {
+                    showRateBtn: true,
+                    supportWheel: true,
+                    rateConfig: [
+                        { label: '0.5', value: 0.5 },
+                        { label: '正常', value: 1 },
+                        { label: '2倍', value: 2 },
+                        { label: '4倍', value: 4 },
+                    ],
+                    MSE: true,
+                    WASM: true,
+                });
+            } else {
+                easypro.showErrorMessageTips('播放地址不能为空');
+            }
+        }
+
+        function replay(options) {
+            if (easypro) {
+                easypro.destroy().then(() => {
+                    create(options);
+                    play();
+                });
+            } else {
+                create();
+                play();
+            }
+        }
+
+        $player.addEventListener('click', function () {
+            play();
+        }, false)
+
+        $playVod.addEventListener('click', function () {
+            playVod();
+        }, false)
+
+        $destroy.addEventListener('click', function () {
+            if (easypro) {
+                easypro.destroy().then(() => {
+                    create();
+                });
+            } else {
+                create();
+            }
+        })
+
+        $useMSE.addEventListener('change', function () {
+            replay();
+        })
+
+        $useSIMD.addEventListener('change', function () {
+            replay();
+        })
+
+        $useWCS.addEventListener('change', function () {
+            replay();
+        })
+
+        $hasAudio.addEventListener('change', function () {
+            replay();
+        })
+
+        $rePlay.addEventListener('click', function () {
+            replay();
+        })
+        $background.addEventListener('change', function () {
+            if (easypro) {
+                easypro.destroy().then(() => {
+                    create();
+                });
+            } else {
+                create();
+            }
+        })
+    </script>
+</body>
+
+</html>
